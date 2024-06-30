@@ -9,10 +9,12 @@ export const authOptions: NextAuthOptions = {
         CredentialsProvider({
             id: "credentials",
             name: "Credentials",
+            //feild require for authentication
             credentials: {
                 email: { label: "Email", type: "text" },
                 password: { label: "Password", type: "password" }
               },
+              //find the user with matching email and username
               async authorize(credentials:any):Promise<any>{
                 await dbConnect();
                 try {
@@ -28,6 +30,7 @@ export const authOptions: NextAuthOptions = {
                     if(!user.isVerified){   
                         throw new Error("User is not verified")
                     }
+                    //compare the password with he user password 
                     const isPasswordCorrext = await bcrypt.compare(credentials.password,user.password)
                     if(isPasswordCorrext){
                         return user
@@ -43,7 +46,7 @@ export const authOptions: NextAuthOptions = {
         })
     ],
     callbacks:{
-       
+       //customize jwt tokens
         async jwt({token,user}){
             if(user){
                 token._id = user._id?.toString()
@@ -54,6 +57,7 @@ export const authOptions: NextAuthOptions = {
             }
             return token
         },
+        //customize session object
         async session({session,token}){
             if(token){
                 session.user._id = token._id
@@ -64,8 +68,9 @@ export const authOptions: NextAuthOptions = {
             return session
         }
     },
+    //custom sign up page provided by the next auth
     pages:{
-        signIn:"signIn",
+        signIn:"/sign-in",
     },
     session:{
         strategy:"jwt",
